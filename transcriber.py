@@ -4,13 +4,30 @@ import re
 from spacy import load as spacy_load
 import time
 import warnings
+import glob
 
 
 def get_audio_files() -> list:
     """
     Return a list of all audio file paths in the audio_files folder
     """
-    return list(os.listdir("audio_files"))
+    dir_name = "audio_files"
+
+    list_of_files = filter(
+        lambda x: os.path.isfile(os.path.join(dir_name, x)), os.listdir(dir_name)
+    )
+
+    # Sort list of files by size
+    list_of_files = sorted(
+        list_of_files, key=lambda x: os.stat(os.path.join(dir_name, x)).st_size
+    )
+
+    # Only return mp3, m4a and wav files
+    return [
+        os.path.join(dir_name, file_name)
+        for file_name in list_of_files
+        if file_name.endswith((".mp3", ".m4a", ".wav"))
+    ]
 
 
 def is_transcribed(audio_file: str) -> bool:
