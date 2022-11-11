@@ -1,10 +1,10 @@
 import os
+import ffmpeg
 import whisper
 import re
 from spacy import load as spacy_load
 import time
 import warnings
-import glob
 
 
 def get_audio_files() -> list:
@@ -21,7 +21,6 @@ def get_audio_files() -> list:
     list_of_files = sorted(
         list_of_files, key=lambda x: os.stat(os.path.join(dir_name, x)).st_size
     )
-
     # Only return mp3, m4a and wav files
     return [
         os.path.join(dir_name, file_name)
@@ -30,13 +29,21 @@ def get_audio_files() -> list:
     ]
 
 
-def is_transcribed(audio_file: str) -> bool:
+def is_transcribed(audio_file: str, model="large") -> bool:
     """
     Check if the audio file has already been transcribed
     """
-    text_file = re.sub(r"\.m4a|\.mp3|\.wav", "", audio_file) + ".txt"
+    text_file = re.sub(r"\.m4a|\.mp3|\.wav", "", audio_file)
+    # remove audio_files/ from the beginning of the string
+    text_file = re.sub(r"audio_files/", "", text_file)
 
-    if transcribed := os.path.exists(f"text_files/{text_file}"):
+    if model == "large":
+        text_file = f"large_model_text_files/{text_file} large.txt"
+        print(text_file)
+    else:
+        text_file = f"text_files/{text_file}.txt"
+
+    if transcribed := os.path.exists(text_file):
         print(f"{audio_file} has already been transcribed")
     else:
         print(f"Transcribing {audio_file}")
@@ -44,9 +51,9 @@ def is_transcribed(audio_file: str) -> bool:
     return transcribed
 
 
-def transcribe_audio(audio_file) -> str:
+def transcribe_audio(audio_file, model="large") -> str:
     warnings.filterwarnings("ignore")
-    model = whisper.load_model("medium")
+    model = whisper.load_model(model)
     return model.transcribe(audio_file)["text"]
 
 
@@ -80,11 +87,13 @@ def main():
         print(
             f"Transcribing audio file number {audio_files.index(audio_file) + 1} of {len(audio_files)}"
         )
-        audio_file_path = f"audio_files/{audio_file}"
         start_time = time.time()
-        string_from_audio = transcribe_audio(audio_file_path)
+        string_from_audio = transcribe_audio(audio_file)
+        audio_file = re.sub(r"audio_files/", "", audio_file)
         sentences = get_sentences(string_from_audio)
-        write_sentences_to_file(sentences, f"text_files/{audio_file}.txt")
+        write_sentences_to_file(
+            sentences, f"large_model_text_files/{audio_file} large.txt"
+        )
         script_time = time.time() - start_time
         log_time_to_file(script_time, "time_log.txt", audio_file=audio_file)
 

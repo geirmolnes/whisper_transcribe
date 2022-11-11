@@ -11,6 +11,10 @@ __pycache__/
 *.mp3
 *.m4a
 
+# Add for text_files directory and large_model_text_files_directory 
+text_files/
+large_model_text_files_directory/
+
 # Distribution / packaging
 .Python
 build/
