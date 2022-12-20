@@ -54,7 +54,13 @@ def is_transcribed(audio_file: str, model="large") -> bool:
 def transcribe_audio(audio_file, model="large") -> str:
     warnings.filterwarnings("ignore")
     model = whisper.load_model(model)
-    return model.transcribe(audio_file)["text"]
+
+    # Open the audio file in binary mode
+    with open(audio_file, "rb") as f:
+        # Transcribe the audio file
+        transcription = model.transcribe(f)["text"]
+
+    return transcription
 
 
 def get_sentences(text: str) -> list:
