@@ -6,6 +6,7 @@ __pycache__/
 # Directory contents
 audio_files/*.m4a
 text_files/*.txt
+"familiekanalen audio transcriptions whisper medium"
 
 # C extensions
 *.so
