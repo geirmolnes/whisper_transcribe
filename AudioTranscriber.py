@@ -8,26 +8,29 @@ import warnings
 import logging
 
 
+def setup_logger(logger, log_level, log_file):
+    # create a file handler and set the log level
+    fh = logging.FileHandler(log_file)
+    fh.setLevel(log_level)
+
+    # create a formatter and add it to the file handler
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    fh.setFormatter(formatter)
+
+    # add the file handler to the logger
+    logger.addHandler(fh)
+
+
 class AudioTranscriber:
     def __init__(self, audio_directory, text_directory, model: str = "large") -> None:
         self.model = model
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.INFO)
         self.audio_directory = audio_directory
         self.text_directory = text_directory
+        self.logger = logging.getLogger(__name__)
 
-        # create a file handler and set the log level to debug
-        fh = logging.FileHandler("mylog.log")
-        fh.setLevel(logging.DEBUG)
-
-        # create a formatter and add it to the file handler
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-        fh.setFormatter(formatter)
-
-        # add the file handler to the logger
-        self.logger.addHandler(fh)
+        setup_logger(self.logger, logging.INFO, "mylog.log")
 
     def get_audio_files(self) -> list:
         """
@@ -54,6 +57,7 @@ class AudioTranscriber:
         """
         Check if the audio file has already been transcribed
         """
+
         text_file = re.sub(r"\.m4a|\.mp3|\.wav", "", audio_file)
         # remove audio_files/ from the beginning of the string
         text_file = re.sub(r"audio_files/", "", text_file)
