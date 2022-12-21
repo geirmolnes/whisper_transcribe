@@ -1,4 +1,3 @@
 # Audio Transcriber using Whisper
-transcriper.py takes audio files placed in the audio_files folder.
-
-It returns a transcribed text in the text_files folder.
+AudioTranscriber.py takes audio-files and transcribes them to text.
+It uses Whisper from OpenAI to accomplish this.

@@ -3,11 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Directory contents
+# Geirs custom stuff
 audio_files/*.m4a
 text_files/*.txt
 !text_files/
-"familiekanalen audio transcriptions whisper medium"
 .DS_Store
 
 # C extensions
