@@ -6,21 +6,8 @@ from spacy import load as spacy_load
 import time
 import warnings
 import logging
-
-
-def setup_logger(logger, log_level, log_file):
-    # create a file handler and set the log level
-    fh = logging.FileHandler(log_file)
-    fh.setLevel(log_level)
-
-    # create a formatter and add it to the file handler
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    fh.setFormatter(formatter)
-
-    # add the file handler to the logger
-    logger.addHandler(fh)
+import pathlib
+from my_logger import logger
 
 
 class AudioTranscriber:
@@ -28,9 +15,10 @@ class AudioTranscriber:
         self.model = model
         self.audio_directory = audio_directory
         self.text_directory = text_directory
-        self.logger = logging.getLogger(__name__)
+        self.logger = logger
 
-        setup_logger(self.logger, logging.INFO, "mylog.log")
+        # log an info message
+        self.logger.info("AudioTranscriber initialized")
 
     def get_audio_files(self) -> list:
         """
@@ -58,16 +46,16 @@ class AudioTranscriber:
         Check if the audio file has already been transcribed
         """
 
-        text_file = re.sub(r"\.m4a|\.mp3|\.wav", "", audio_file)
-        # remove audio_files/ from the beginning of the string
-        text_file = re.sub(r"audio_files/", "", text_file)
+        audio_file_path = pathlib.Path(audio_file)
+        text_file_path = pathlib.Path("text_files") / audio_file_path.stem
+        text_file_path = text_file_path.with_suffix(".txt")
 
-        text_file = f"text_files/{text_file}.txt"
-
-        if transcribed := os.path.exists(text_file):
-            self.logger.info(f"{audio_file} has already been transcribed")
-
-        return transcribed
+        try:
+            with text_file_path.open() as f:
+                self.logger.info(f"{audio_file} has already been transcribed")
+                return True
+        except FileNotFoundError:
+            return False
 
     def transcribe_audio(self, audio_file: str) -> str:
         warnings.filterwarnings("ignore")
@@ -93,8 +81,7 @@ class AudioTranscriber:
             f"{int(script_time // 60)} minutes {int(script_time % 60)} seconds"
         )
         audio_file = re.sub(r"audio_files/", "", audio_file)
-        self.logger.info(f"{audio_file}:")
-        self.logger.info(f"{script_time}")
+        self.logger.info(f"{audio_file}: {script_time}")
         self.logger.info("\n")
 
     def main(self):
