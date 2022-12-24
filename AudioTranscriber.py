@@ -17,7 +17,6 @@ class AudioTranscriber:
         self.text_directory = text_directory
         self.logger = logger
 
-        # log an info message
         self.logger.info("AudioTranscriber initialized")
 
     def get_audio_files(self) -> list:
@@ -68,14 +67,12 @@ class AudioTranscriber:
         return [sent.text for sent in tokens.sents]
 
     def write_sentences_to_file(self, sentences: list, filename: str) -> None:
-        # Remove audio file extension from filename
         filename = re.sub(r"\.m4a|\.mp3|\.wav", "", filename)
         filename = re.sub(r"audio_files/", "", filename)
         with open(filename, "w") as f:
             for sentence in sentences:
                 f.write(sentence + "\n")
 
-    # Log time to file using the logging module
     def log_time_to_file(self, script_time: float, audio_file: str) -> None:
         script_time = (
             f"{int(script_time // 60)} minutes {int(script_time % 60)} seconds"
